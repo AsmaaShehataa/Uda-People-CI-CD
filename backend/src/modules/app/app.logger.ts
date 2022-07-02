@@ -8,6 +8,7 @@ dotenv.config();
 const logglySubdomain = process.env.LOGGLY_SUBDOMAIN;
 const logglyToken = process.env.LOGGLY_TOKEN;
 
+
 const getLogglyTransport = () => {
   return new Loggly({
     subdomain: logglySubdomain,
@@ -85,3 +86,4 @@ export class AppLogger implements LoggerService {
     this.logger.debug({ message });
   }
 }
+
