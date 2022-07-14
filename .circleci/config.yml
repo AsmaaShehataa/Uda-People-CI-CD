@@ -223,6 +223,7 @@ jobs:
             npm install
             npm run migrations > migrations_dump.txt  
             npm audit fix --force
+            npm fund
       - run:
           name: Send migration status to kvdb.io
           command: |
