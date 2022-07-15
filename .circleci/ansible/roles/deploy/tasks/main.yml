@@ -24,7 +24,7 @@
 
 - name: print message 
   debug:
-    msg: "{{ execute_node.stdout_line}}"
+    msg: "{{ execute_node.stdout_lines }}"
 
 - name: "configure pm2 to start service"
   become: true
