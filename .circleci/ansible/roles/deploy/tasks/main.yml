@@ -1,7 +1,7 @@
 ---
 - name: "Creates backend app directory"
   file:
-    path: ~/backend
+    path: ~/backend-app
     state: directory
 
 - name: "Unarchive backend files"
@@ -29,7 +29,7 @@
 - name: "configure pm2 to start service"
   become: true
   shell: |
-    env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu
+    env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu/backend-app
 
 
 
