@@ -360,9 +360,9 @@ jobs:
             FrontEend_Website=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com
             if curl -s $FrontEend_Website | grep "Welcome"
             then
-              exit 0
-            else
               exit 1
+            else
+              exit 2
             fi
             
       - destroy-environment
