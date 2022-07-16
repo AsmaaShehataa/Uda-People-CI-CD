@@ -382,7 +382,7 @@ jobs:
           command: |
             export OldWorkflowID=$(aws cloudformation \
                   list-exports --query Exports[?Name==\`workflowID\`].Value" \
-                  -- paginate --output text)
+                  --no-paginate --output text)
             echo "Old workflow ID: $oldWorkflowID"
             curl https://kvdb.io/${KVDB_BUCKET}/old_workflow_id -d "${oldWorkflowID}"
       - run: 
