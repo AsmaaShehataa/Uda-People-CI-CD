@@ -384,13 +384,6 @@ jobs:
               --stack-name InitialStack \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
-      - run:
-          name: Create cloudfront invalidation
-          command: |
-            DISTRIBUTION_ID=`aws cloudformation describe-stacks --stack-name InitialStack | jq -r '.Stacks[0].Outputs[] | select(.OutputKey=="ClientDistribution").OutputValue'` && \
-            INVALIDATION_ID=`aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*" | jq -r .Invalidation.Id` && \
-            aws cloudfront wait invalidation-completed --distribution-id $DISTRIBUTION_ID --id $INVALIDATION_ID
-            echo "INVALIDATION_ID: $INVALIDATION_ID"
       - destroy-environment
       - revert-migrations
 
