@@ -46,7 +46,7 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
 
   revert-migrations:
-    description: Revert the last migration if successfully run in the current workflow. 
+    description: Revert the last migration if successfully run in the current workflow.
     steps:
       - run:
           name: Revert migrations
@@ -60,7 +60,7 @@ commands:
               npm run migration:revert 
               
             fi
-            
+
 jobs:
   build-frontend:
     docker:
@@ -75,7 +75,7 @@ jobs:
             cd frontend
             npm install
             npm run build
-            
+
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -108,7 +108,7 @@ jobs:
             cd frontend
             npm install
             npm test
-      
+
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -125,7 +125,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-    
+
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -141,7 +141,7 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force
             npm audit --audit-level=critical
-      
+
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -174,8 +174,8 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
-              
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -183,8 +183,8 @@ jobs:
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
-              
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -193,33 +193,31 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
             echo $BACKEND_PUBLIC_IP >> .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt 
+            cat .circleci/ansible/inventory.txt
 
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment
-      
-
 
   configure-infrastructure:
     docker:
-      - image: cimg/base:stable 
+      - image: cimg/base:stable
     steps:
-      - checkout 
+      - checkout
       - install_ansible
       - add_ssh_keys:
-            fingerprints: ["bf:ef:56:87:47:69:dd:07:4f:1a:27:12:bd:ea:df:70"]
+          fingerprints: ["bf:ef:56:87:47:69:dd:07:4f:1a:27:12:bd:ea:df:70"]
       - attach_workspace:
-          at: ~/ 
+          at: ~/
       - run:
           name: configure Server
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
-            
+
   run-migrations:
     docker:
       - image: cimg/node:13.8.0
@@ -243,7 +241,6 @@ jobs:
             fi
       - destroy-environment
       - revert-migrations
-      
 
   deploy-frontend:
     docker:
@@ -258,7 +255,7 @@ jobs:
           name: Install dependencies
           command: |
             cd frontend
-            npm install 
+            npm install
       - run:
           name: Get backend url
           command: |
@@ -267,9 +264,9 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
 
-            echo API_URL="http://${BACKEND_PUBLIC_IP}:3030" >> frontend.env 
-            cat frontend.env
-            
+            echo API_URL="http://${BACKEND_PUBLIC_IP}:3030" >> frontend/.env 
+            cat frontend/.env
+
       - run:
           name: Deploy frontend objects
           command: |
@@ -279,7 +276,7 @@ jobs:
 
       - destroy-environment
       - revert-migrations
-                    
+
   deploy-backend:
     docker:
       - image: cimg/base:stable
@@ -288,10 +285,10 @@ jobs:
       - install_awscli
       - install_ansible
       - install_nodejs
-      -  add_ssh_keys:
-            fingerprints: ["bf:ef:56:87:47:69:dd:07:4f:1a:27:12:bd:ea:df:70"]
+      - add_ssh_keys:
+          fingerprints: ["bf:ef:56:87:47:69:dd:07:4f:1a:27:12:bd:ea:df:70"]
       - attach_workspace:
-          at: ~/ 
+          at: ~/
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -326,14 +323,10 @@ jobs:
 
       - destroy-environment
       - revert-migrations
-    
-
-
-       
 
   smoke-test:
     docker:
-      - image: cimg/base:stable 
+      - image: cimg/base:stable
     steps:
       - checkout
       - install_awscli
@@ -364,11 +357,9 @@ jobs:
             else
               exit 1
             fi
-            
+
       - destroy-environment
       - revert-migrations
-
-      
 
   cloudfront-update:
     docker:
@@ -385,7 +376,7 @@ jobs:
                   --no-paginate --output text)
             echo "Old workflow ID: $OldWorkflowID"
             curl https://kvdb.io/${KVDB_BUCKET}/old_workflow_id -d "${OldWorkflowID}"
-      - run: 
+      - run:
           name: Update cloudfront distribution
           command: |
             aws cloudformation deploy \
@@ -413,7 +404,7 @@ jobs:
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}"    
-            
+
 
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
