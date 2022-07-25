@@ -1,24 +1,27 @@
 ---
-- name: "Creates backend app directory"
+- name: "Create Backend app directory"
   file:
-    path: ~/backend-app
-    state: directory
+      path: /home/ubuntu/backend-app
+      state: directory
 
-- name: "Unarchive backend files"
+- name: "unarchive backend files"
   unarchive:
-    src: artifact.tar.gz
-    dest: ~/backend-app
+      src: artifact.tar.gz
+      dest: /home/ubuntu/backend-app 
 
 - name: "Installing Node Dependencies"
+  become: true
   shell: |
-    cd ~/backend-app
-    npm i
+      cd /home/ubuntu/backend-app
+      npm install
 
 - name: "Executing Node app with PM2"
   shell: |
-    cd ~/backend-app/dist
-    pm2 stop default
-    pm2 start main.js
+    become: true
+    shell: |
+      cd /home/ubuntu/backend-app/dist
+      pm2 stop default
+      pm2 start -f main.js
 
   register: execute_node
 
@@ -29,7 +32,7 @@
 - name: "configure pm2 to start service"
   become: true
   shell: |
-    env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu/backend-app
-
+    sudo su -c "env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu/"
+      pm2 save
 
 
